@@ -88,7 +88,7 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter"><level>ERROR</level></filter>
         <!-- Filter by database name -->
         <!--
-        <filter class="com.solutions.dandelion.logback.filters.DBNameFilter">
+        <filter class="solutions.dandelion.logback.filters.DBNameFilter">
             <dbname>default</dbname>
         </filter>
         -->
@@ -103,10 +103,10 @@
     </appender>
 
     <appender name="SLACK-REPORT" class="com.github.maricn.logback.SlackAppender">
-        <filter class="com.solutions.dandelion.logback.filters.ReportFilter"/>
+        <filter class="solutions.dandelion.logback.filters.ReportFilter"/>
         <!-- Filter by database name -->
         <!--
-        <filter class="com.solutions.dandelion.logback.filters.DBNameFilter">
+        <filter class="solutions.dandelion.logback.filters.DBNameFilter">
             <dbname>default</dbname>
         </filter>
         -->
@@ -155,7 +155,7 @@
     <if condition='"dev".equals(property("APP_ENV"))'>
         <then>
             <logger name="akka" level="DEBUG"/>
-            <logger name="com.solutions.dandelion" level="DEBUG"/>
+            <logger name="solutions.dandelion" level="DEBUG"/>
         </then>
     </if>
 
