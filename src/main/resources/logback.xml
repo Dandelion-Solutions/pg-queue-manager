@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOG_DIR" value="logs"/>
+    <property name="MAX_HISTORY" value="90"/>
+    <property name="MAX_FILE_SIZE" value="100MB"/>
+
+    <if condition='"dev".equals(property("APP_ENV"))'>
+        <then>
+            <property name="ROOT_LOG_LEVEL" value="DEBUG"/>
+        </then>
+        <else>
+            <property name="ROOT_LOG_LEVEL" value="INFO"/>
+        </else>
+    </if>
+
+    <!-- CONSOLE ******************************************************************************** -->
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %highlight([%.-1le]) %d{MM/dd HH:mm:ss.SSS} %yellow([%.15t]) %cyan(%lo{1}) %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- GENERAL FILE (application.log) ********************************************************* -->
+
+    <!-- rollover: daily, max_size + GZIP -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/main.log</file>
+        <encoder>
+            <pattern>[%.-1le] %d{ISO8601} [%t] %lo %n%msg%n%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM, aux}/main-%d.%000i.log.gz</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- COPY of FILE for W/E (exact filter) **************************************************** -->
+
+    <appender name="WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <file>${LOG_DIR}/warn.log</file>
+        <encoder>
+            <pattern>[%.-1le] %d{ISO8601} [%t] %lo %n%msg%n%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM, aux}/warn-%d.%000i.log.gz</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <file>${LOG_DIR}/error.log</file>
+        <encoder>
+            <!--<pattern>%d{ISO8601} %coloredLevel - %t - %logger %n%message%n%xException%n</pattern>-->
+            <pattern>[%.-1le] %d{ISO8601} [%t] %lo %n%msg%n%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM, aux}/error-%d.%000i.log.gz</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Direct Slack integration *************************************************************** -->
+
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter"><level>ERROR</level></filter>
+        <!-- Filter by database name -->
+        <!--
+        <filter class="com.solutions.dandelion.logback.filters.DBNameFilter">
+            <dbname>default</dbname>
+        </filter>
+        -->
+
+        <webhookUri>https://hooks.slack.com/services/</webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{"ISO8601", UTC}  %p %t %c{0}.%M - %m%n%ex{short}</pattern>
+        </layout>
+        <username>pg-queue-manager</username>
+        <iconEmoji>:stuck_out_tongue_winking_eye:</iconEmoji>
+        <colorCoding>true</colorCoding>
+    </appender>
+
+    <appender name="SLACK-REPORT" class="com.github.maricn.logback.SlackAppender">
+        <filter class="com.solutions.dandelion.logback.filters.ReportFilter"/>
+        <!-- Filter by database name -->
+        <!--
+        <filter class="com.solutions.dandelion.logback.filters.DBNameFilter">
+            <dbname>default</dbname>
+        </filter>
+        -->
+
+        <webhookUri>https://hooks.slack.com/services/</webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{"ISO8601", UTC} %m</pattern>
+        </layout>
+        <username>pg-queue-manager</username>
+        <iconEmoji>:wall:</iconEmoji>
+        <colorCoding>true</colorCoding>
+    </appender>
+
+    <!-- ASYNC ********************************************************************************** -->
+
+    <appender name="ASYNC-STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT"/>
+    </appender>
+
+    <appender name="ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC-WARN" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="WARN"/>
+    </appender>
+
+    <appender name="ASYNC-ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ERROR"/>
+    </appender>
+
+    <appender name="ASYNC-SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
+        <queueSize>2048</queueSize>
+        <appender-ref ref="SLACK"/>
+    </appender>
+
+    <appender name="ASYNC-SLACK-REPORT" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
+        <queueSize>2048</queueSize>
+        <appender-ref ref="SLACK-REPORT"/>
+    </appender>
+
+    <!-- FILTERS ******************************************************************************** -->
+
+    <if condition='"dev".equals(property("APP_ENV"))'>
+        <then>
+            <logger name="akka" level="DEBUG"/>
+            <logger name="com.solutions.dandelion" level="DEBUG"/>
+        </then>
+    </if>
+
+    <root level="${ROOT_LOG_LEVEL}">
+        <!-- Console output is enabled only for Development -->
+        <if condition='"dev".equals(property("APP_ENV"))'>
+            <then>
+                <appender-ref ref="ASYNC-STDOUT"/>
+            </then>
+        </if>
+
+        <appender-ref ref="ASYNC-FILE"/>
+        <appender-ref ref="ASYNC-WARN"/>
+        <appender-ref ref="ASYNC-ERROR"/>
+
+        <if condition='"prod".equals(property("APP_ENV"))'>
+            <then>
+                <appender-ref ref="ASYNC-SLACK"/>
+                <appender-ref ref="ASYNC-SLACK-REPORT"/>
+            </then>
+        </if>
+    </root>
+</configuration>
