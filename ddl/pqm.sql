@@ -24,7 +24,7 @@ create table sys.pqm_dbcrontab (
     job_name text not null,
     cron_expression text not null,
     queue_name text not null,
-    routine text not null,
+    routine_name text not null,
     args jsonb null,
     min_execution_time bigint,
     max_execution_time bigint

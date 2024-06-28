@@ -96,10 +96,10 @@ class DatabaseCron(val dbName: String, crontab: String, channel: String, onEvent
             Using(stmt.executeQuery()) { rs =>
                 val tasks = mutable.Set[CronTask]()
                 while(rs.next()) {
-                    val name = rs.getString("name")
-                    val expression = rs.getString("expression")
-                    val routine = rs.getString("routine")
-                    val queue = rs.getString("queue")
+                    val name = rs.getString("job_name")
+                    val expression = rs.getString("cron_expression")
+                    val routine = rs.getString("routine_name")
+                    val queue = rs.getString("queue_name")
                     val args = Json.parse(rs.getString("args")).as[JsObject]
                     val maxExecutionTime = rs.getLong("max_execution_time")
                     val minExecutionTime = rs.getLong("min_execution_time")
