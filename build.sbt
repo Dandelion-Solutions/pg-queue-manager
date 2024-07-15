@@ -22,8 +22,8 @@ lazy val pqm = (project in file("."))
     ),
 
     libraryDependencies ++= Seq(
-      "com.mysterria.lioqu"           %% "lioqu-utils-commons"          % "1.5-SNAPSHOT",
-      "com.mysterria.lioqu"           %% "lioqu-db-postgres"            % "1.5-SNAPSHOT",
+      "com.mysterria.lioqu"           %% "lioqu-utils-commons"          % "1.4",
+      "com.mysterria.lioqu"           %% "lioqu-db-postgres"            % "1.4",
       "joda-time"                     %  "joda-time"                    % "2.10.10", // Here we use the same version as used in slick-pg (https://github.com/tminglei/slick-pg/blob/v0.19.7/build.sbt)
 
       "com.typesafe.scala-logging"    %% "scala-logging"          % "3.9.5",
