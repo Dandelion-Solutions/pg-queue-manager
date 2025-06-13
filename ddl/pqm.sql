@@ -1,10 +1,9 @@
-
 create schema if not exists sys;
 create schema if not exists sys_partitions;
 
 create table sys.pqm_log (
     pqm_log_id bigserial not null primary key,
-    pqm_log_date timestamp with time zone not null default clock_timestamp()
+    pqm_log_date timestamp with time zone not null default clock_timestamp(),
     queue_name text null,
     guid uuid not null,
     event_code text not null,
@@ -14,10 +13,9 @@ create table sys.pqm_log (
 );
 
 create table sys_partitions.pqm_log_21010101 (
-    like pqm_log including all,
+    like sys.pqm_log including all,
     constraint pqm_log_21010101_timestamp_check check (pqm_log_date >= '21010101' and pqm_log_date < '21010201')
-) inherits (pqm_log);
-
+) inherits (sys.pqm_log);
 
 create table sys.pqm_dbcrontab (
     pqm_dbcrontab_id bigserial not null primary key,
@@ -31,10 +29,6 @@ create table sys.pqm_dbcrontab (
 );
 
 comment on column sys.pqm_dbcrontab.cron_expression is 'in Quartz format. For example https://www.freeformatter.com/cron-expression-generator-quartz.html';
-
-
-
-
 
 create or replace function sys.get_partition_name(
 	p_table_name varchar,

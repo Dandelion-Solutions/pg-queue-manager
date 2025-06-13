@@ -72,8 +72,15 @@ lazy val pqm = (project in file("."))
       }
     },
 
+    /* *** RPM *** */
     rpmVendor := ds,
     rpmLicense := Some("MIT"),
+
+    /* *** Debian *** */
+    debianPackageDependencies := Seq("java11-runtime-headless"),
+    maintainer := "Igor Zinkovskii <admin@mysterria.com>",
+    packageSummary := "Postgres Queue Manager Debian package",
+    packageDescription := "Software for managing concurrent execution queues for Pg routines.",
 
     bashScriptExtraDefines ++= Seq(
       // Memory
@@ -92,5 +99,5 @@ lazy val pqm = (project in file("."))
   .enablePlugins(LauncherJarPlugin)
   .enablePlugins(JavaServerAppPackaging)
   .enablePlugins(SystemdPlugin)
-  .enablePlugins(RpmPlugin)
+  .enablePlugins(RpmPlugin, DebianPlugin)
 //  .addCommandAlias("dist", "universal:package-xz-tarball")
